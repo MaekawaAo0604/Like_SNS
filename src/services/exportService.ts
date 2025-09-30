@@ -1,20 +1,50 @@
+import html2canvas from 'html2canvas';
 import type { ExportOptions, ExportResult } from '../types';
 
 /**
  * チャット画面を画像としてエクスポート
  */
 export const exportChatAsImage = async (
-  _element: HTMLElement,
-  _options: ExportOptions,
+  element: HTMLElement,
+  options: ExportOptions,
 ): Promise<ExportResult> => {
   try {
-    // html2canvasライブラリを動的にインポート（Phase 8で実装予定）
-    // 現在はプレースホルダー
-    throw new Error('Export functionality will be implemented in Phase 8');
+    const canvas = await html2canvas(element, {
+      backgroundColor: '#ffffff',
+      scale: options.scale || 2,
+      logging: false,
+      useCORS: true,
+    });
+
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob(
+        (blob) => {
+          if (blob) resolve(blob);
+          else reject(new Error('Failed to create blob'));
+        },
+        `image/${options.format === 'jpg' ? 'jpeg' : 'png'}`,
+        options.quality === 'high'
+          ? 0.95
+          : options.quality === 'medium'
+            ? 0.8
+            : 0.6,
+      );
+    });
+
+    return {
+      success: true,
+      data: blob,
+      metadata: {
+        fileName: `chat-mockup-${Date.now()}.${options.format}`,
+        fileSize: blob.size,
+        format: options.format,
+        timestamp: new Date(),
+      },
+    };
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? error.message : 'Export failed',
     };
   }
 };
