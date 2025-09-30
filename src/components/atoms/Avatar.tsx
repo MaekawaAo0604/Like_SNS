@@ -13,21 +13,20 @@ const sizeClasses = {
   lg: 'w-12 h-12',
 };
 
-export const Avatar: React.FC<AvatarProps> = ({
-  src,
-  alt = 'Avatar',
-  size = 'md',
-  className = '',
-}) => {
-  return (
-    <div
-      className={`${sizeClasses[size]} rounded-full overflow-hidden bg-gray-300 flex items-center justify-center ${className}`}
-    >
-      {src ? (
-        <img src={src} alt={alt} className="w-full h-full object-cover" />
-      ) : (
-        <span className="text-gray-500 text-sm">👤</span>
-      )}
-    </div>
-  );
-};
+export const Avatar: React.FC<AvatarProps> = React.memo(
+  ({ src, alt = 'Avatar', size = 'md', className = '' }) => {
+    return (
+      <div
+        className={`${sizeClasses[size]} rounded-full overflow-hidden bg-gray-300 flex items-center justify-center ${className}`}
+      >
+        {src ? (
+          <img src={src} alt={alt} className="w-full h-full object-cover" />
+        ) : (
+          <span className="text-gray-500 text-sm">👤</span>
+        )}
+      </div>
+    );
+  },
+);
+
+Avatar.displayName = 'Avatar';
