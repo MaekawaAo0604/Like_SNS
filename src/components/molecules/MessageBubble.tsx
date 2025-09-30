@@ -75,7 +75,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = React.memo(
   return (
     <article
       className={`flex gap-2 mb-3 ${isSender ? 'flex-row-reverse' : 'flex-row'}`}
-      role="article"
       aria-label={`${isSender ? '送信' : '受信'}メッセージ: ${message.content}`}
     >
       {showAvatar && (
@@ -139,7 +138,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = React.memo(
               px-4 py-2 rounded-2xl
               break-words
             `}
-            role="text"
           >
             {message.content}
           </div>
