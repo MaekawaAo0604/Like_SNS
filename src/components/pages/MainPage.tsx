@@ -1,12 +1,15 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import type { Message } from '../../types';
 import { useMessageStore, useThemeStore, useDesignStore } from '../../stores';
+import { useKeyboardShortcuts } from '../../hooks';
+import { exportChatAsImage, downloadBlob } from '../../services';
 import { MainTemplate } from '../templates/MainTemplate';
 import { ChatWindow } from '../organisms/ChatWindow';
 import { MessageComposer } from '../organisms/MessageComposer';
 import { ControlPanel } from '../organisms/ControlPanel';
 
 export const MainPage: React.FC = () => {
+  const chatWindowRef = useRef<HTMLDivElement>(null);
   const { currentRoom, addMessage, clearMessages } = useMessageStore();
   const { config, setSnsTheme } = useThemeStore();
   const {
@@ -33,9 +36,23 @@ export const MainPage: React.FC = () => {
     [addMessage],
   );
 
-  const handleExport = useCallback(() => {
-    // TODO: Export functionality will be implemented in Phase 8
-    alert('画像エクスポート機能は実装予定です');
+  const handleExport = useCallback(async () => {
+    if (!chatWindowRef.current) {
+      alert('エクスポート対象が見つかりません');
+      return;
+    }
+
+    const result = await exportChatAsImage(chatWindowRef.current, {
+      format: 'png',
+      quality: 'high',
+      scale: 2,
+    });
+
+    if (result.success && result.data && result.metadata) {
+      downloadBlob(result.data as Blob, result.metadata.fileName);
+    } else {
+      alert(`エクスポートに失敗しました: ${result.error}`);
+    }
   }, []);
 
   const handleClear = useCallback(() => {
@@ -43,6 +60,30 @@ export const MainPage: React.FC = () => {
       clearMessages();
     }
   }, [clearMessages]);
+
+  // キーボードショートカット設定
+  useKeyboardShortcuts([
+    {
+      key: 's',
+      ctrlKey: true,
+      handler: handleExport,
+    },
+    {
+      key: 'd',
+      ctrlKey: true,
+      handler: handleClear,
+    },
+    {
+      key: 'a',
+      ctrlKey: true,
+      handler: () => setShowAvatar(!options.showAvatar),
+    },
+    {
+      key: 't',
+      ctrlKey: true,
+      handler: () => setShowTimestamp(!options.showTimestamp),
+    },
+  ]);
 
   const header = (
     <div className="text-center">
@@ -59,15 +100,17 @@ export const MainPage: React.FC = () => {
     <MainTemplate
       header={header}
       chatWindow={
-        <ChatWindow
-          messages={currentRoom?.messages || []}
-          showAvatar={options.showAvatar}
-          showTimestamp={options.showTimestamp}
-          showSenderName={options.showSenderName}
-          showStatus={options.showStatus}
-          senderBubbleColor={config.colors.senderBubble}
-          receiverBubbleColor={config.colors.receiverBubble}
-        />
+        <div ref={chatWindowRef}>
+          <ChatWindow
+            messages={currentRoom?.messages || []}
+            showAvatar={options.showAvatar}
+            showTimestamp={options.showTimestamp}
+            showSenderName={options.showSenderName}
+            showStatus={options.showStatus}
+            senderBubbleColor={config.colors.senderBubble}
+            receiverBubbleColor={config.colors.receiverBubble}
+          />
+        </div>
       }
       messageComposer={<MessageComposer onSendMessage={handleSendMessage} />}
       controlPanel={
