@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useEffect } from 'react';
 import type { Message } from '../../types';
 import { useMessageStore, useThemeStore, useDesignStore } from '../../stores';
 import { useKeyboardShortcuts } from '../../hooks';
@@ -22,6 +22,7 @@ export const MainPage: React.FC = () => {
     updateMessage,
     deleteMessage,
     clearMessages,
+    createRoom,
   } = useMessageStore();
   const { config, setSnsTheme } = useThemeStore();
   const {
@@ -31,6 +32,13 @@ export const MainPage: React.FC = () => {
     setShowSenderName,
     setShowStatus,
   } = useDesignStore();
+
+  // 初期化: currentRoomがnullの場合、デフォルトルームを作成
+  useEffect(() => {
+    if (!currentRoom) {
+      createRoom('Default Chat');
+    }
+  }, [currentRoom, createRoom]);
 
   const handleSendMessage = useCallback(
     (content: string, isSender: boolean, senderName?: string) => {
