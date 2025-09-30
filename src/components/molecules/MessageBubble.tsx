@@ -152,3 +152,5 @@ export const MessageBubble: React.FC<MessageBubbleProps> = React.memo(
   );
   },
 );
+
+MessageBubble.displayName = 'MessageBubble';

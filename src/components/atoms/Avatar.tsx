@@ -28,3 +28,5 @@ export const Avatar: React.FC<AvatarProps> = React.memo(
     );
   },
 );
+
+Avatar.displayName = 'Avatar';
