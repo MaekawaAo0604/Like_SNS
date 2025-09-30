@@ -20,18 +20,19 @@ const sizeClasses = {
   lg: 'px-6 py-3 text-lg min-h-[52px]',
 };
 
-export const Button: React.FC<ButtonProps> = ({
-  variant = 'primary',
-  size = 'md',
-  fullWidth = false,
-  children,
-  className = '',
-  disabled = false,
-  ...props
-}) => {
-  return (
-    <button
-      className={`
+export const Button: React.FC<ButtonProps> = React.memo(
+  ({
+    variant = 'primary',
+    size = 'md',
+    fullWidth = false,
+    children,
+    className = '',
+    disabled = false,
+    ...props
+  }) => {
+    return (
+      <button
+        className={`
         rounded-lg font-medium transition-colors
         ${variantClasses[variant]}
         ${sizeClasses[size]}
@@ -39,10 +40,11 @@ export const Button: React.FC<ButtonProps> = ({
         ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
         ${className}
       `}
-      disabled={disabled}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-};
+        disabled={disabled}
+        {...props}
+      >
+        {children}
+      </button>
+    );
+  },
+);

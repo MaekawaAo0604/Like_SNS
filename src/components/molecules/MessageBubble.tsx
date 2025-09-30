@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import type { Message } from '../../types';
 import { Avatar } from '../atoms/Avatar';
 import { MessageActions } from './MessageActions';
@@ -14,47 +14,63 @@ interface MessageBubbleProps {
   onDelete?: (id: string) => void;
 }
 
-export const MessageBubble: React.FC<MessageBubbleProps> = ({
-  message,
-  showAvatar = true,
-  showTimestamp = true,
-  showSenderName = true,
-  showStatus = true,
-  bubbleColor,
-  onEdit,
-  onDelete,
-}) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editContent, setEditContent] = useState(message.content);
-  const formatTime = (date: Date) => {
-    return new Date(date).toLocaleTimeString('ja-JP', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+export const MessageBubble: React.FC<MessageBubbleProps> = React.memo(
+  ({
+    message,
+    showAvatar = true,
+    showTimestamp = true,
+    showSenderName = true,
+    showStatus = true,
+    bubbleColor,
+    onEdit,
+    onDelete,
+  }) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [editContent, setEditContent] = useState(message.content);
 
-  const statusIcons = {
-    sent: '✓',
-    delivered: '✓✓',
-    read: '✓✓',
-  };
+    // メモ化: formatTime
+    const formattedTime = useMemo(() => {
+      return new Date(message.timestamp).toLocaleTimeString('ja-JP', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    }, [message.timestamp]);
 
-  const isSender = message.isSender;
-  const defaultBubbleColor = isSender ? 'bg-blue-500' : 'bg-gray-200';
-  const textColor = isSender ? 'text-white' : 'text-gray-900';
+    // メモ化: statusIcon
+    const statusIcon = useMemo(() => {
+      const statusIcons = {
+        sent: '✓',
+        delivered: '✓✓',
+        read: '✓✓',
+      };
+      return statusIcons[message.status];
+    }, [message.status]);
 
-  const handleEdit = () => {
-    if (onEdit && editContent.trim()) {
-      onEdit(message.id, editContent.trim());
-      setIsEditing(false);
-    }
-  };
+    // メモ化: スタイル
+    const isSender = message.isSender;
+    const bubbleStyle = useMemo(() => {
+      const defaultBubbleColor = isSender ? 'bg-blue-500' : 'bg-gray-200';
+      const textColor = isSender ? 'text-white' : 'text-gray-900';
+      return {
+        bubbleColor: bubbleColor || defaultBubbleColor,
+        textColor,
+      };
+    }, [isSender, bubbleColor]);
 
-  const handleDelete = () => {
-    if (onDelete && confirm('このメッセージを削除しますか？')) {
-      onDelete(message.id);
-    }
-  };
+    // メモ化: handleEdit
+    const handleEdit = useCallback(() => {
+      if (onEdit && editContent.trim()) {
+        onEdit(message.id, editContent.trim());
+        setIsEditing(false);
+      }
+    }, [onEdit, editContent, message.id]);
+
+    // メモ化: handleDelete
+    const handleDelete = useCallback(() => {
+      if (onDelete && confirm('このメッセージを削除しますか？')) {
+        onDelete(message.id);
+      }
+    }, [onDelete, message.id]);
 
   return (
     <div
@@ -100,8 +116,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         ) : (
           <div
             className={`
-              ${bubbleColor || defaultBubbleColor}
-              ${textColor}
+              ${bubbleStyle.bubbleColor}
+              ${bubbleStyle.textColor}
               px-4 py-2 rounded-2xl
               break-words
             `}
@@ -114,14 +130,14 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         >
           {showTimestamp && (
             <span className="text-xs text-gray-500 dark:text-gray-400">
-              {formatTime(message.timestamp)}
+              {formattedTime}
             </span>
           )}
           {showStatus && isSender && (
             <span
               className={`text-xs ${message.status === 'read' ? 'text-blue-500' : 'text-gray-400'}`}
             >
-              {statusIcons[message.status]}
+              {statusIcon}
             </span>
           )}
         </div>
@@ -134,4 +150,5 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
       </div>
     </div>
   );
-};
+  },
+);
