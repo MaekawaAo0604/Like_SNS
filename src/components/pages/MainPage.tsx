@@ -10,7 +10,13 @@ import { ControlPanel } from '../organisms/ControlPanel';
 
 export const MainPage: React.FC = () => {
   const chatWindowRef = useRef<HTMLDivElement>(null);
-  const { currentRoom, addMessage, clearMessages } = useMessageStore();
+  const {
+    currentRoom,
+    addMessage,
+    updateMessage,
+    deleteMessage,
+    clearMessages,
+  } = useMessageStore();
   const { config, setSnsTheme } = useThemeStore();
   const {
     options,
@@ -60,6 +66,20 @@ export const MainPage: React.FC = () => {
       clearMessages();
     }
   }, [clearMessages]);
+
+  const handleEditMessage = useCallback(
+    (id: string, content: string) => {
+      updateMessage(id, { content });
+    },
+    [updateMessage],
+  );
+
+  const handleDeleteMessage = useCallback(
+    (id: string) => {
+      deleteMessage(id);
+    },
+    [deleteMessage],
+  );
 
   // キーボードショートカット設定
   useKeyboardShortcuts([
@@ -111,6 +131,8 @@ export const MainPage: React.FC = () => {
             showStatus={options.showStatus}
             senderBubbleColor={config.colors.senderBubble}
             receiverBubbleColor={config.colors.receiverBubble}
+            onEditMessage={handleEditMessage}
+            onDeleteMessage={handleDeleteMessage}
           />
         </div>
       }
