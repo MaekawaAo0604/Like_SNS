@@ -26,52 +26,66 @@ export const useMessageStore = create<MessageState>()(
       addMessage: (message) =>
         set((state) => {
           if (!state.currentRoom) return state;
+          const updatedRoom = {
+            ...state.currentRoom,
+            messages: [...state.currentRoom.messages, message],
+            updatedAt: new Date(),
+          };
           return {
-            currentRoom: {
-              ...state.currentRoom,
-              messages: [...state.currentRoom.messages, message],
-              updatedAt: new Date(),
-            },
+            currentRoom: updatedRoom,
+            rooms: state.rooms.map((room) =>
+              room.id === updatedRoom.id ? updatedRoom : room,
+            ),
           };
         }),
 
       updateMessage: (id, updates) =>
         set((state) => {
           if (!state.currentRoom) return state;
+          const updatedRoom = {
+            ...state.currentRoom,
+            messages: state.currentRoom.messages.map((msg) =>
+              msg.id === id ? { ...msg, ...updates } : msg,
+            ),
+            updatedAt: new Date(),
+          };
           return {
-            currentRoom: {
-              ...state.currentRoom,
-              messages: state.currentRoom.messages.map((msg) =>
-                msg.id === id ? { ...msg, ...updates } : msg,
-              ),
-              updatedAt: new Date(),
-            },
+            currentRoom: updatedRoom,
+            rooms: state.rooms.map((room) =>
+              room.id === updatedRoom.id ? updatedRoom : room,
+            ),
           };
         }),
 
       deleteMessage: (id) =>
         set((state) => {
           if (!state.currentRoom) return state;
+          const updatedRoom = {
+            ...state.currentRoom,
+            messages: state.currentRoom.messages.filter((msg) => msg.id !== id),
+            updatedAt: new Date(),
+          };
           return {
-            currentRoom: {
-              ...state.currentRoom,
-              messages: state.currentRoom.messages.filter(
-                (msg) => msg.id !== id,
-              ),
-              updatedAt: new Date(),
-            },
+            currentRoom: updatedRoom,
+            rooms: state.rooms.map((room) =>
+              room.id === updatedRoom.id ? updatedRoom : room,
+            ),
           };
         }),
 
       clearMessages: () =>
         set((state) => {
           if (!state.currentRoom) return state;
+          const updatedRoom = {
+            ...state.currentRoom,
+            messages: [],
+            updatedAt: new Date(),
+          };
           return {
-            currentRoom: {
-              ...state.currentRoom,
-              messages: [],
-              updatedAt: new Date(),
-            },
+            currentRoom: updatedRoom,
+            rooms: state.rooms.map((room) =>
+              room.id === updatedRoom.id ? updatedRoom : room,
+            ),
           };
         }),
 

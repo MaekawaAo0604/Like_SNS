@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import type { ThemeConfig, SnsTheme, ThemeMode, ColorScheme } from '../types';
 
 const defaultColorSchemes: Record<SnsTheme, ColorScheme> = {
@@ -73,31 +74,41 @@ const initialTheme: ThemeConfig = {
   colors: defaultColorSchemes.line,
 };
 
-export const useThemeStore = create<ThemeState>((set) => ({
-  config: initialTheme,
+export const useThemeStore = create<ThemeState>()(
+  persist(
+    (set) => ({
+      config: initialTheme,
 
-  setThemeMode: (mode) =>
-    set((state) => ({
-      config: { ...state.config, mode },
-    })),
+      setThemeMode: (mode) =>
+        set((state) => ({
+          config: { ...state.config, mode },
+        })),
 
-  setSnsTheme: (theme) =>
-    set((state) => ({
-      config: {
-        ...state.config,
-        snsTheme: theme,
-        colors: { ...defaultColorSchemes[theme], ...state.config.customColors },
-      },
-    })),
+      setSnsTheme: (theme) =>
+        set((state) => ({
+          config: {
+            ...state.config,
+            snsTheme: theme,
+            colors: {
+              ...defaultColorSchemes[theme],
+              ...state.config.customColors,
+            },
+          },
+        })),
 
-  setCustomColors: (colors) =>
-    set((state) => ({
-      config: {
-        ...state.config,
-        customColors: { ...state.config.customColors, ...colors },
-        colors: { ...state.config.colors, ...colors },
-      },
-    })),
+      setCustomColors: (colors) =>
+        set((state) => ({
+          config: {
+            ...state.config,
+            customColors: { ...state.config.customColors, ...colors },
+            colors: { ...state.config.colors, ...colors },
+          },
+        })),
 
-  resetTheme: () => set({ config: initialTheme }),
-}));
+      resetTheme: () => set({ config: initialTheme }),
+    }),
+    {
+      name: 'theme-storage',
+    },
+  ),
+);

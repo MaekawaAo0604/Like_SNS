@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import type { DesignOptions, BubbleStyle } from '../types';
 
 interface DesignState {
@@ -26,36 +27,43 @@ const defaultDesignOptions: DesignOptions = {
   bubbleStyle: defaultBubbleStyle,
 };
 
-export const useDesignStore = create<DesignState>((set) => ({
-  options: defaultDesignOptions,
+export const useDesignStore = create<DesignState>()(
+  persist(
+    (set) => ({
+      options: defaultDesignOptions,
 
-  setShowAvatar: (show) =>
-    set((state) => ({
-      options: { ...state.options, showAvatar: show },
-    })),
+      setShowAvatar: (show) =>
+        set((state) => ({
+          options: { ...state.options, showAvatar: show },
+        })),
 
-  setShowTimestamp: (show) =>
-    set((state) => ({
-      options: { ...state.options, showTimestamp: show },
-    })),
+      setShowTimestamp: (show) =>
+        set((state) => ({
+          options: { ...state.options, showTimestamp: show },
+        })),
 
-  setShowSenderName: (show) =>
-    set((state) => ({
-      options: { ...state.options, showSenderName: show },
-    })),
+      setShowSenderName: (show) =>
+        set((state) => ({
+          options: { ...state.options, showSenderName: show },
+        })),
 
-  setShowStatus: (show) =>
-    set((state) => ({
-      options: { ...state.options, showStatus: show },
-    })),
+      setShowStatus: (show) =>
+        set((state) => ({
+          options: { ...state.options, showStatus: show },
+        })),
 
-  setBubbleStyle: (style) =>
-    set((state) => ({
-      options: {
-        ...state.options,
-        bubbleStyle: { ...state.options.bubbleStyle, ...style },
-      },
-    })),
+      setBubbleStyle: (style) =>
+        set((state) => ({
+          options: {
+            ...state.options,
+            bubbleStyle: { ...state.options.bubbleStyle, ...style },
+          },
+        })),
 
-  resetDesign: () => set({ options: defaultDesignOptions }),
-}));
+      resetDesign: () => set({ options: defaultDesignOptions }),
+    }),
+    {
+      name: 'design-storage',
+    },
+  ),
+);

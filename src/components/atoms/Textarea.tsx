@@ -16,7 +16,7 @@ export const Textarea: React.FC<TextareaProps> = ({
   ...props
 }) => {
   const textareaId =
-    id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
+    id || `textarea-${Math.random().toString(36).substring(2, 11)}`;
 
   return (
     <div className={`${fullWidth ? 'w-full' : ''}`}>
