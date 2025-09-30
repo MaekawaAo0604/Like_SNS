@@ -32,8 +32,9 @@ export const Button: React.FC<ButtonProps> = React.memo(
   }) => {
     return (
       <button
+        type={props.type || 'button'}
         className={`
-        rounded-lg font-medium transition-colors
+        rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
         ${variantClasses[variant]}
         ${sizeClasses[size]}
         ${fullWidth ? 'w-full' : ''}
@@ -41,6 +42,7 @@ export const Button: React.FC<ButtonProps> = React.memo(
         ${className}
       `}
         disabled={disabled}
+        aria-disabled={disabled}
         {...props}
       >
         {children}

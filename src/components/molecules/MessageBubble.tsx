@@ -73,23 +73,37 @@ export const MessageBubble: React.FC<MessageBubbleProps> = React.memo(
     }, [onDelete, message.id]);
 
   return (
-    <div
+    <article
       className={`flex gap-2 mb-3 ${isSender ? 'flex-row-reverse' : 'flex-row'}`}
+      aria-label={`${isSender ? '送信' : '受信'}メッセージ: ${message.content}`}
     >
       {showAvatar && (
-        <Avatar src={message.avatarUrl} size="sm" className="flex-shrink-0" />
+        <Avatar
+          src={message.avatarUrl}
+          alt={message.senderName || 'ユーザー'}
+          size="sm"
+          className="flex-shrink-0"
+        />
       )}
       <div
         className={`flex flex-col ${isSender ? 'items-end' : 'items-start'} max-w-[70%]`}
       >
         {showSenderName && message.senderName && !isSender && (
-          <span className="text-xs text-gray-600 dark:text-gray-400 mb-1 px-2">
+          <span
+            className="text-xs text-gray-600 dark:text-gray-400 mb-1 px-2"
+            role="heading"
+            aria-level={3}
+          >
             {message.senderName}
           </span>
         )}
         {isEditing ? (
-          <div className="flex gap-2">
+          <div className="flex gap-2" role="form" aria-label="メッセージ編集">
+            <label htmlFor={`edit-message-${message.id}`} className="sr-only">
+              メッセージを編集
+            </label>
             <input
+              id={`edit-message-${message.id}`}
               type="text"
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
@@ -98,17 +112,20 @@ export const MessageBubble: React.FC<MessageBubbleProps> = React.memo(
                 if (e.key === 'Enter') handleEdit();
                 if (e.key === 'Escape') setIsEditing(false);
               }}
+              aria-label="メッセージ編集欄"
               autoFocus
             />
             <button
               onClick={handleEdit}
               className="px-3 py-1 bg-blue-500 text-white rounded-lg"
+              aria-label="編集を保存"
             >
               ✓
             </button>
             <button
               onClick={() => setIsEditing(false)}
               className="px-3 py-1 bg-gray-300 rounded-lg"
+              aria-label="編集をキャンセル"
             >
               ✕
             </button>
@@ -129,13 +146,17 @@ export const MessageBubble: React.FC<MessageBubbleProps> = React.memo(
           className={`flex gap-2 items-center mt-1 px-2 ${isSender ? 'flex-row-reverse' : 'flex-row'}`}
         >
           {showTimestamp && (
-            <span className="text-xs text-gray-500 dark:text-gray-400">
+            <time
+              className="text-xs text-gray-500 dark:text-gray-400"
+              dateTime={new Date(message.timestamp).toISOString()}
+            >
               {formattedTime}
-            </span>
+            </time>
           )}
           {showStatus && isSender && (
             <span
               className={`text-xs ${message.status === 'read' ? 'text-blue-500' : 'text-gray-400'}`}
+              aria-label={`メッセージステータス: ${message.status === 'read' ? '既読' : message.status === 'delivered' ? '配信済み' : '送信済み'}`}
             >
               {statusIcon}
             </span>
@@ -148,7 +169,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = React.memo(
           />
         )}
       </div>
-    </div>
+    </article>
   );
   },
 );

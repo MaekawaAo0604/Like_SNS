@@ -41,9 +41,19 @@ export const Textarea: React.FC<TextareaProps> = ({
           ${error ? 'border-red-500' : ''}
           ${className}
         `}
+        aria-invalid={error ? 'true' : 'false'}
+        aria-describedby={error ? `${textareaId}-error` : undefined}
         {...props}
       />
-      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+      {error && (
+        <p
+          id={`${textareaId}-error`}
+          className="mt-1 text-sm text-red-500"
+          role="alert"
+        >
+          {error}
+        </p>
+      )}
     </div>
   );
 };

@@ -18,11 +18,15 @@ export const Avatar: React.FC<AvatarProps> = React.memo(
     return (
       <div
         className={`${sizeClasses[size]} rounded-full overflow-hidden bg-gray-300 flex items-center justify-center ${className}`}
+        role="img"
+        aria-label={alt}
       >
         {src ? (
           <img src={src} alt={alt} className="w-full h-full object-cover" />
         ) : (
-          <span className="text-gray-500 text-sm">👤</span>
+          <span className="text-gray-500 text-sm" aria-hidden="true">
+            👤
+          </span>
         )}
       </div>
     );
