@@ -76,11 +76,13 @@ export const MainPage: React.FC = () => {
     {
       key: 'a',
       ctrlKey: true,
+      shiftKey: true,
       handler: () => setShowAvatar(!options.showAvatar),
     },
     {
       key: 't',
       ctrlKey: true,
+      shiftKey: true,
       handler: () => setShowTimestamp(!options.showTimestamp),
     },
   ]);
