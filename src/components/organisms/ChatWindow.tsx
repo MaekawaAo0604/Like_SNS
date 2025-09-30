@@ -10,6 +10,8 @@ interface ChatWindowProps {
   showStatus?: boolean;
   senderBubbleColor?: string;
   receiverBubbleColor?: string;
+  onEditMessage?: (id: string, content: string) => void;
+  onDeleteMessage?: (id: string) => void;
 }
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({
@@ -20,6 +22,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   showStatus = true,
   senderBubbleColor,
   receiverBubbleColor,
+  onEditMessage,
+  onDeleteMessage,
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -50,6 +54,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             bubbleColor={
               message.isSender ? senderBubbleColor : receiverBubbleColor
             }
+            onEdit={onEditMessage}
+            onDelete={onDeleteMessage}
           />
         ))
       )}

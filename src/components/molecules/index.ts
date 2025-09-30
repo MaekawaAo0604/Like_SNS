@@ -6,3 +6,4 @@ export { MessageBubble } from './MessageBubble';
 export { MessageInput } from './MessageInput';
 export { ThemeSelector } from './ThemeSelector';
 export { DesignControls } from './DesignControls';
+export { MessageActions } from './MessageActions';

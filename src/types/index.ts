@@ -2,7 +2,13 @@
  * 型定義のエントリーポイント
  */
 
-export type { Message, MessageType, MessageStatus, ChatRoom } from './message';
+export type {
+  Message,
+  MessageType,
+  MessageStatus,
+  ChatRoom,
+  ChatRoomJSON,
+} from './message';
 
 export type {
   ThemeMode,

@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Vite cache
+.vite
+
+# Playwright MCP cache
+.playwright-mcp
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

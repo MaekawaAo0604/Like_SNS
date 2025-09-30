@@ -76,6 +76,37 @@ export const exportChatAsJSON = (data: unknown): ExportResult => {
 };
 
 /**
+ * JSONファイルからチャットデータをインポート
+ */
+export const importChatFromJSON = async (file: File): Promise<ExportResult> => {
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+
+    // データ検証
+    if (!data || typeof data !== 'object') {
+      throw new Error('Invalid JSON format');
+    }
+
+    return {
+      success: true,
+      data,
+      metadata: {
+        fileName: file.name,
+        fileSize: file.size,
+        format: 'json',
+        timestamp: new Date(),
+      },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'JSON import failed',
+    };
+  }
+};
+
+/**
  * Blobをダウンロード
  */
 export const downloadBlob = (blob: Blob, fileName: string): void => {
@@ -87,4 +118,21 @@ export const downloadBlob = (blob: Blob, fileName: string): void => {
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
+};
+
+/**
+ * ファイル選択ダイアログを開く
+ */
+export const selectFile = (accept: string): Promise<File | null> => {
+  return new Promise((resolve) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = accept;
+    input.onchange = (e) => {
+      const target = e.target as HTMLInputElement;
+      const file = target.files?.[0];
+      resolve(file || null);
+    };
+    input.click();
+  });
 };

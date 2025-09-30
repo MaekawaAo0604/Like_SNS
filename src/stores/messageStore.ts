@@ -13,6 +13,7 @@ interface MessageState {
   createRoom: (name: string) => ChatRoom;
   deleteRoom: (roomId: string) => void;
   loadRoom: (roomId: string) => void;
+  importRoom: (room: ChatRoom) => void;
 }
 
 export const useMessageStore = create<MessageState>()(
@@ -117,6 +118,21 @@ export const useMessageStore = create<MessageState>()(
           set({ currentRoom: room });
         }
       },
+
+      importRoom: (room) =>
+        set((state) => {
+          // 重複チェック: 同じIDのルームが既に存在する場合は追加しない
+          const existingRoom = state.rooms.find((r) => r.id === room.id);
+          if (existingRoom) {
+            // 既存ルームを現在のルームとして設定
+            return { currentRoom: existingRoom };
+          }
+          // 新しいルームを追加
+          return {
+            currentRoom: room,
+            rooms: [...state.rooms, room],
+          };
+        }),
     }),
     {
       name: 'sns-chat-mockup-storage',

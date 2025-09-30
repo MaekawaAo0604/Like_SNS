@@ -14,6 +14,8 @@ interface ControlPanelProps {
   onToggleStatus: (show: boolean) => void;
   onExport: () => void;
   onClear: () => void;
+  onExportJSON: () => void;
+  onImportJSON: () => void;
 }
 
 export const ControlPanel: React.FC<ControlPanelProps> = ({
@@ -26,6 +28,8 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   onToggleStatus,
   onExport,
   onClear,
+  onExportJSON,
+  onImportJSON,
 }) => {
   return (
     <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg space-y-6">
@@ -50,6 +54,14 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
         <Button variant="primary" fullWidth onClick={onExport}>
           📥 画像として保存
         </Button>
+        <div className="grid grid-cols-2 gap-2">
+          <Button variant="outline" fullWidth onClick={onExportJSON}>
+            💾 JSON保存
+          </Button>
+          <Button variant="outline" fullWidth onClick={onImportJSON}>
+            📂 JSON読込
+          </Button>
+        </div>
         <Button variant="outline" fullWidth onClick={onClear}>
           🗑️ メッセージをクリア
         </Button>
