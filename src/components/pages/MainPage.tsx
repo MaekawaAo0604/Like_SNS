@@ -2,7 +2,13 @@ import React, { useCallback, useRef } from 'react';
 import type { Message } from '../../types';
 import { useMessageStore, useThemeStore, useDesignStore } from '../../stores';
 import { useKeyboardShortcuts } from '../../hooks';
-import { exportChatAsImage, downloadBlob } from '../../services';
+import {
+  exportChatAsImage,
+  exportChatAsJSON,
+  importChatFromJSON,
+  selectFile,
+  downloadBlob,
+} from '../../services';
 import { MainTemplate } from '../templates/MainTemplate';
 import { ChatWindow } from '../organisms/ChatWindow';
 import { MessageComposer } from '../organisms/MessageComposer';
@@ -81,6 +87,59 @@ export const MainPage: React.FC = () => {
     [deleteMessage],
   );
 
+  const handleExportJSON = useCallback(() => {
+    if (!currentRoom) {
+      alert('エクスポートするデータがありません');
+      return;
+    }
+
+    const result = exportChatAsJSON(currentRoom);
+    if (result.success && result.data && result.metadata) {
+      downloadBlob(result.data as Blob, result.metadata.fileName);
+    } else {
+      alert(`エクスポートに失敗しました: ${result.error}`);
+    }
+  }, [currentRoom]);
+
+  const handleImportJSON = useCallback(async () => {
+    const file = await selectFile('application/json');
+    if (!file) return;
+
+    const result = await importChatFromJSON(file);
+    if (result.success && result.data) {
+      const data = result.data as any;
+
+      // ChatRoom形式のデータかチェック
+      if (data.id && data.name && Array.isArray(data.messages)) {
+        // メッセージのtimestampをDate型に変換
+        const messages = data.messages.map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp),
+        }));
+
+        // 新しいルームとして作成
+        const newRoom = {
+          ...data,
+          messages,
+          createdAt: new Date(data.createdAt),
+          updatedAt: new Date(data.updatedAt),
+        };
+
+        // 現在のルームとして設定
+        useMessageStore.setState({
+          currentRoom: newRoom,
+          rooms: [...useMessageStore.getState().rooms, newRoom],
+        });
+
+        alert('データを読み込みました');
+      } else {
+        alert('無効なデータ形式です');
+      }
+    } else {
+      alert(`読み込みに失敗しました: ${result.error}`);
+    }
+  }, []);
+
   // キーボードショートカット設定
   useKeyboardShortcuts([
     {
@@ -148,6 +207,8 @@ export const MainPage: React.FC = () => {
           onToggleStatus={setShowStatus}
           onExport={handleExport}
           onClear={handleClear}
+          onExportJSON={handleExportJSON}
+          onImportJSON={handleImportJSON}
         />
       }
     />
