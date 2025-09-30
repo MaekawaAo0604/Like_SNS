@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { ThemeConfig, SnsTheme, ThemeMode, ColorScheme } from '../types';
+import type { ThemePreset } from '../constants/themePresets';
 
 const defaultColorSchemes: Record<SnsTheme, ColorScheme> = {
   line: {
@@ -62,9 +63,14 @@ const defaultColorSchemes: Record<SnsTheme, ColorScheme> = {
 
 interface ThemeState {
   config: ThemeConfig;
+  currentPresetId: string | null;
   setThemeMode: (mode: ThemeMode) => void;
   setSnsTheme: (theme: SnsTheme) => void;
   setCustomColors: (colors: Partial<ColorScheme>) => void;
+  applyPreset: (preset: ThemePreset) => void;
+  updateColor: (key: keyof ColorScheme, value: string) => void;
+  exportTheme: () => string;
+  importTheme: (jsonString: string) => void;
   resetTheme: () => void;
 }
 
@@ -76,8 +82,9 @@ const initialTheme: ThemeConfig = {
 
 export const useThemeStore = create<ThemeState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       config: initialTheme,
+      currentPresetId: 'line',
 
       setThemeMode: (mode) =>
         set((state) => ({
@@ -105,7 +112,42 @@ export const useThemeStore = create<ThemeState>()(
           },
         })),
 
-      resetTheme: () => set({ config: initialTheme }),
+      applyPreset: (preset) =>
+        set({
+          config: {
+            mode: get().config.mode,
+            snsTheme: preset.id as SnsTheme,
+            colors: preset.colors,
+            customColors: undefined,
+          },
+          currentPresetId: preset.id,
+        }),
+
+      updateColor: (key, value) =>
+        set((state) => ({
+          config: {
+            ...state.config,
+            colors: { ...state.config.colors, [key]: value },
+            customColors: { ...state.config.customColors, [key]: value },
+          },
+          currentPresetId: null,
+        })),
+
+      exportTheme: () => {
+        const { config } = get();
+        return JSON.stringify(config, null, 2);
+      },
+
+      importTheme: (jsonString) => {
+        try {
+          const importedConfig = JSON.parse(jsonString) as ThemeConfig;
+          set({ config: importedConfig, currentPresetId: null });
+        } catch (error) {
+          console.error('テーマのインポートに失敗しました:', error);
+        }
+      },
+
+      resetTheme: () => set({ config: initialTheme, currentPresetId: 'line' }),
     }),
     {
       name: 'theme-storage',
