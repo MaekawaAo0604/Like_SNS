@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import type { Message } from '../../types';
 import { MessageBubble } from '../molecules/MessageBubble';
 
@@ -25,25 +26,33 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   onEditMessage,
   onDeleteMessage,
 }) => {
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const virtuosoRef = useRef<VirtuosoHandle>(null);
 
+  // 新しいメッセージが追加されたら最下部にスクロール
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (virtuosoRef.current && messages.length > 0) {
+      virtuosoRef.current.scrollToIndex({
+        index: messages.length - 1,
+        align: 'end',
+        behavior: 'smooth',
+      });
     }
-  }, [messages]);
+  }, [messages.length]);
 
-  return (
-    <div
-      ref={scrollRef}
-      className="flex-1 overflow-y-auto p-4 bg-white dark:bg-gray-900 min-h-[400px] max-h-[600px]"
-    >
-      {messages.length === 0 ? (
-        <div className="flex items-center justify-center h-full text-gray-400">
-          <p>メッセージがありません</p>
-        </div>
-      ) : (
-        messages.map((message) => (
+  // メッセージが少ない場合は通常のレンダリング
+  if (messages.length === 0) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-4 bg-white dark:bg-gray-900 min-h-[400px] max-h-[600px]">
+        <p className="text-gray-400">メッセージがありません</p>
+      </div>
+    );
+  }
+
+  // メッセージが100件未満の場合は通常レンダリング
+  if (messages.length < 100) {
+    return (
+      <div className="flex-1 overflow-y-auto p-4 bg-white dark:bg-gray-900 min-h-[400px] max-h-[600px]">
+        {messages.map((message) => (
           <MessageBubble
             key={message.id}
             message={message}
@@ -57,8 +66,35 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             onEdit={onEditMessage}
             onDelete={onDeleteMessage}
           />
-        ))
-      )}
+        ))}
+      </div>
+    );
+  }
+
+  // 100件以上の場合は仮想スクロール
+  return (
+    <div className="flex-1 bg-white dark:bg-gray-900 min-h-[400px] max-h-[600px]">
+      <Virtuoso
+        ref={virtuosoRef}
+        style={{ height: '600px' }}
+        data={messages}
+        itemContent={(_index, message) => (
+          <MessageBubble
+            key={message.id}
+            message={message}
+            showAvatar={showAvatar}
+            showTimestamp={showTimestamp}
+            showSenderName={showSenderName}
+            showStatus={showStatus}
+            bubbleColor={
+              message.isSender ? senderBubbleColor : receiverBubbleColor
+            }
+            onEdit={onEditMessage}
+            onDelete={onDeleteMessage}
+          />
+        )}
+        followOutput="smooth"
+      />
     </div>
   );
 };
