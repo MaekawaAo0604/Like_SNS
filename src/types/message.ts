@@ -33,3 +33,21 @@ export interface ChatRoom {
   createdAt: Date;
   updatedAt: Date;
 }
+
+/**
+ * JSON形式で保存されたMessage（Date型が文字列になっている）
+ */
+export interface MessageJSON extends Omit<Message, 'timestamp'> {
+  timestamp: string;
+}
+
+/**
+ * JSON形式で保存されたChatRoom（Date型が文字列になっている）
+ */
+export interface ChatRoomJSON {
+  id: string;
+  name: string;
+  messages: MessageJSON[];
+  createdAt: string;
+  updatedAt: string;
+}

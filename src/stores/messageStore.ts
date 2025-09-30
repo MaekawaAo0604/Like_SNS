@@ -13,6 +13,7 @@ interface MessageState {
   createRoom: (name: string) => ChatRoom;
   deleteRoom: (roomId: string) => void;
   loadRoom: (roomId: string) => void;
+  importRoom: (room: ChatRoom) => void;
 }
 
 export const useMessageStore = create<MessageState>()(
@@ -117,6 +118,12 @@ export const useMessageStore = create<MessageState>()(
           set({ currentRoom: room });
         }
       },
+
+      importRoom: (room) =>
+        set((state) => ({
+          currentRoom: room,
+          rooms: [...state.rooms, room],
+        })),
     }),
     {
       name: 'sns-chat-mockup-storage',

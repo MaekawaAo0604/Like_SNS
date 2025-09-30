@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useEffect } from 'react';
-import type { Message } from '../../types';
+import type { Message, ChatRoomJSON } from '../../types';
 import { useMessageStore, useThemeStore, useDesignStore } from '../../stores';
 import { useKeyboardShortcuts } from '../../hooks';
 import {
@@ -23,6 +23,7 @@ export const MainPage: React.FC = () => {
     deleteMessage,
     clearMessages,
     createRoom,
+    importRoom,
   } = useMessageStore();
   const { config, setSnsTheme } = useThemeStore();
   const {
@@ -115,12 +116,13 @@ export const MainPage: React.FC = () => {
 
     const result = await importChatFromJSON(file);
     if (result.success && result.data) {
-      const data = result.data as any;
+      // JSONからパースしたオブジェクトを型アサーション
+      const data = result.data as unknown as ChatRoomJSON;
 
       // ChatRoom形式のデータかチェック
       if (data.id && data.name && Array.isArray(data.messages)) {
         // メッセージのtimestampをDate型に変換
-        const messages = data.messages.map((msg: any) => ({
+        const messages = data.messages.map((msg) => ({
           ...msg,
           timestamp: new Date(msg.timestamp),
         }));
@@ -133,11 +135,8 @@ export const MainPage: React.FC = () => {
           updatedAt: new Date(data.updatedAt),
         };
 
-        // 現在のルームとして設定
-        useMessageStore.setState({
-          currentRoom: newRoom,
-          rooms: [...useMessageStore.getState().rooms, newRoom],
-        });
+        // importRoomアクションを使用してルームを追加
+        importRoom(newRoom);
 
         alert('データを読み込みました');
       } else {
@@ -146,7 +145,7 @@ export const MainPage: React.FC = () => {
     } else {
       alert(`読み込みに失敗しました: ${result.error}`);
     }
-  }, []);
+  }, [importRoom]);
 
   // キーボードショートカット設定
   useKeyboardShortcuts([
