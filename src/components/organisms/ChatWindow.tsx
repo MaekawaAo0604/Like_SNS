@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Virtuoso } from 'react-virtuoso';
+import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import type { Message } from '../../types';
 import { MessageBubble } from '../molecules/MessageBubble';
 
@@ -26,7 +26,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   onEditMessage,
   onDeleteMessage,
 }) => {
-  const virtuosoRef = useRef<any>(null);
+  const virtuosoRef = useRef<VirtuosoHandle>(null);
 
   // 新しいメッセージが追加されたら最下部にスクロール
   useEffect(() => {
