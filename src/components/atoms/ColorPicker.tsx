@@ -13,7 +13,8 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
   onChange,
   id,
 }) => {
-  const pickerId = id || `color-picker-${Math.random().toString(36).substring(2, 11)}`;
+  const generatedId = React.useId();
+  const pickerId = id || generatedId;
 
   return (
     <div className="flex flex-col gap-2">
