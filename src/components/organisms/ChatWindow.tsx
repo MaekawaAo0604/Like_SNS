@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import type { Message } from '../../types';
 import { MessageBubble } from '../molecules/MessageBubble';
+import { useSearchStore } from '../../stores';
 
 interface ChatWindowProps {
   messages: Message[];
@@ -27,6 +28,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   onDeleteMessage,
 }) => {
   const virtuosoRef = useRef<VirtuosoHandle>(null);
+  const { highlightedMessageIds, currentHighlightIndex } = useSearchStore();
 
   // 新しいメッセージが追加されたら最下部にスクロール
   useEffect(() => {
@@ -63,21 +65,29 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         aria-label="チャットメッセージ"
         aria-atomic="false"
       >
-        {messages.map((message) => (
-          <MessageBubble
-            key={message.id}
-            message={message}
-            showAvatar={showAvatar}
-            showTimestamp={showTimestamp}
-            showSenderName={showSenderName}
-            showStatus={showStatus}
-            bubbleColor={
-              message.isSender ? senderBubbleColor : receiverBubbleColor
-            }
-            onEdit={onEditMessage}
-            onDelete={onDeleteMessage}
-          />
-        ))}
+        {messages.map((message) => {
+          const isHighlighted = highlightedMessageIds.includes(message.id);
+          const isCurrentHighlight =
+            highlightedMessageIds[currentHighlightIndex] === message.id;
+
+          return (
+            <MessageBubble
+              key={message.id}
+              message={message}
+              showAvatar={showAvatar}
+              showTimestamp={showTimestamp}
+              showSenderName={showSenderName}
+              showStatus={showStatus}
+              bubbleColor={
+                message.isSender ? senderBubbleColor : receiverBubbleColor
+              }
+              isHighlighted={isHighlighted}
+              isCurrentHighlight={isCurrentHighlight}
+              onEdit={onEditMessage}
+              onDelete={onDeleteMessage}
+            />
+          );
+        })}
       </div>
     );
   }
@@ -95,21 +105,29 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         ref={virtuosoRef}
         style={{ height: '600px' }}
         data={messages}
-        itemContent={(_index, message) => (
-          <MessageBubble
-            key={message.id}
-            message={message}
-            showAvatar={showAvatar}
-            showTimestamp={showTimestamp}
-            showSenderName={showSenderName}
-            showStatus={showStatus}
-            bubbleColor={
-              message.isSender ? senderBubbleColor : receiverBubbleColor
-            }
-            onEdit={onEditMessage}
-            onDelete={onDeleteMessage}
-          />
-        )}
+        itemContent={(_index, message) => {
+          const isHighlighted = highlightedMessageIds.includes(message.id);
+          const isCurrentHighlight =
+            highlightedMessageIds[currentHighlightIndex] === message.id;
+
+          return (
+            <MessageBubble
+              key={message.id}
+              message={message}
+              showAvatar={showAvatar}
+              showTimestamp={showTimestamp}
+              showSenderName={showSenderName}
+              showStatus={showStatus}
+              bubbleColor={
+                message.isSender ? senderBubbleColor : receiverBubbleColor
+              }
+              isHighlighted={isHighlighted}
+              isCurrentHighlight={isCurrentHighlight}
+              onEdit={onEditMessage}
+              onDelete={onDeleteMessage}
+            />
+          );
+        }}
         followOutput="smooth"
       />
     </div>

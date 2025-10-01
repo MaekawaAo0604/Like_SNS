@@ -10,6 +10,8 @@ interface MessageBubbleProps {
   showSenderName?: boolean;
   showStatus?: boolean;
   bubbleColor?: string;
+  isHighlighted?: boolean;
+  isCurrentHighlight?: boolean;
   onEdit?: (id: string, content: string) => void;
   onDelete?: (id: string) => void;
 }
@@ -22,6 +24,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = React.memo(
     showSenderName = true,
     showStatus = true,
     bubbleColor,
+    isHighlighted = false,
+    isCurrentHighlight = false,
     onEdit,
     onDelete,
   }) => {
@@ -137,6 +141,9 @@ export const MessageBubble: React.FC<MessageBubbleProps> = React.memo(
               ${bubbleStyle.textColor}
               px-4 py-2 rounded-2xl
               break-words
+              ${isHighlighted ? 'ring-2 ring-yellow-400 dark:ring-yellow-500' : ''}
+              ${isCurrentHighlight ? 'ring-4 ring-orange-500 dark:ring-orange-400' : ''}
+              transition-all
             `}
           >
             {message.content}
