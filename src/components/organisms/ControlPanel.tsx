@@ -10,6 +10,7 @@ import { RoomSelector } from '../molecules/RoomSelector';
 import { MessageSearch } from '../molecules/MessageSearch';
 import { MessageFilter } from '../molecules/MessageFilter';
 import { MessageSort } from '../molecules/MessageSort';
+import { MessageStatistics } from '../molecules/MessageStatistics';
 import { Button } from '../atoms/Button';
 
 interface ControlPanelProps {
@@ -93,6 +94,11 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       {/* メッセージソート */}
       <div className="space-y-4 pb-4 border-b border-gray-200 dark:border-gray-700">
         <MessageSort />
+      </div>
+
+      {/* メッセージ統計 */}
+      <div className="space-y-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+        <MessageStatistics />
       </div>
 
       {/* ダークモード設定 */}
