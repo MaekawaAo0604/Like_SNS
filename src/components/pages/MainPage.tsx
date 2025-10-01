@@ -23,6 +23,7 @@ export const MainPage: React.FC = () => {
     updateMessage,
     deleteMessage,
     clearMessages,
+    reorderMessages,
     createRoom,
     loadRoom,
     deleteRoom,
@@ -222,6 +223,7 @@ export const MainPage: React.FC = () => {
             receiverBubbleColor={config.colors.receiverBubble}
             onEditMessage={handleEditMessage}
             onDeleteMessage={handleDeleteMessage}
+            onReorderMessages={reorderMessages}
           />
         </div>
       }

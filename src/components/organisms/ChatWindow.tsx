@@ -1,7 +1,22 @@
 import React, { useRef, useEffect } from 'react';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import type { Message } from '../../types';
 import { MessageBubble } from '../molecules/MessageBubble';
+import { SortableMessageBubble } from '../molecules/SortableMessageBubble';
 import { useSearchStore } from '../../stores';
 
 interface ChatWindowProps {
@@ -14,6 +29,7 @@ interface ChatWindowProps {
   receiverBubbleColor?: string;
   onEditMessage?: (id: string, content: string) => void;
   onDeleteMessage?: (id: string) => void;
+  onReorderMessages?: (fromIndex: number, toIndex: number) => void;
 }
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({
@@ -26,9 +42,27 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   receiverBubbleColor,
   onEditMessage,
   onDeleteMessage,
+  onReorderMessages,
 }) => {
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const { highlightedMessageIds, currentHighlightIndex } = useSearchStore();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id && onReorderMessages) {
+      const oldIndex = messages.findIndex((msg) => msg.id === active.id);
+      const newIndex = messages.findIndex((msg) => msg.id === over.id);
+      onReorderMessages(oldIndex, newIndex);
+    }
+  };
 
   // 新しいメッセージが追加されたら最下部にスクロール
   useEffect(() => {
@@ -55,42 +89,53 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     );
   }
 
-  // メッセージが100件未満の場合は通常レンダリング
+  // メッセージが100件未満の場合は通常レンダリング (DnD対応)
   if (messages.length < 100) {
     return (
-      <div
-        className="flex-1 overflow-y-auto p-4 bg-white dark:bg-gray-900 min-h-[400px] max-h-[600px]"
-        role="log"
-        aria-live="polite"
-        aria-label="チャットメッセージ"
-        aria-atomic="false"
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
       >
-        {messages.map((message) => {
-          const isHighlighted = highlightedMessageIds.includes(message.id);
-          const isCurrentHighlight =
-            currentHighlightIndex >= 0 &&
-            currentHighlightIndex < highlightedMessageIds.length &&
-            highlightedMessageIds[currentHighlightIndex] === message.id;
+        <SortableContext
+          items={messages.map((msg) => msg.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          <div
+            className="flex-1 overflow-y-auto p-4 bg-white dark:bg-gray-900 min-h-[400px] max-h-[600px]"
+            role="log"
+            aria-live="polite"
+            aria-label="チャットメッセージ"
+            aria-atomic="false"
+          >
+            {messages.map((message) => {
+              const isHighlighted = highlightedMessageIds.includes(message.id);
+              const isCurrentHighlight =
+                currentHighlightIndex >= 0 &&
+                currentHighlightIndex < highlightedMessageIds.length &&
+                highlightedMessageIds[currentHighlightIndex] === message.id;
 
-          return (
-            <MessageBubble
-              key={message.id}
-              message={message}
-              showAvatar={showAvatar}
-              showTimestamp={showTimestamp}
-              showSenderName={showSenderName}
-              showStatus={showStatus}
-              bubbleColor={
-                message.isSender ? senderBubbleColor : receiverBubbleColor
-              }
-              isHighlighted={isHighlighted}
-              isCurrentHighlight={isCurrentHighlight}
-              onEdit={onEditMessage}
-              onDelete={onDeleteMessage}
-            />
-          );
-        })}
-      </div>
+              return (
+                <SortableMessageBubble
+                  key={message.id}
+                  message={message}
+                  showAvatar={showAvatar}
+                  showTimestamp={showTimestamp}
+                  showSenderName={showSenderName}
+                  showStatus={showStatus}
+                  bubbleColor={
+                    message.isSender ? senderBubbleColor : receiverBubbleColor
+                  }
+                  isHighlighted={isHighlighted}
+                  isCurrentHighlight={isCurrentHighlight}
+                  onEdit={onEditMessage}
+                  onDelete={onDeleteMessage}
+                />
+              );
+            })}
+          </div>
+        </SortableContext>
+      </DndContext>
     );
   }
 

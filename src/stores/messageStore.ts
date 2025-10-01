@@ -10,6 +10,7 @@ interface MessageState {
   updateMessage: (id: string, updates: Partial<Message>) => void;
   deleteMessage: (id: string) => void;
   clearMessages: () => void;
+  reorderMessages: (fromIndex: number, toIndex: number) => void;
   createRoom: (name: string) => ChatRoom;
   deleteRoom: (roomId: string) => void;
   loadRoom: (roomId: string) => void;
@@ -82,6 +83,27 @@ export const useMessageStore = create<MessageState>()(
             messages: [],
             updatedAt: new Date(),
           };
+          return {
+            currentRoom: updatedRoom,
+            rooms: state.rooms.map((room) =>
+              room.id === updatedRoom.id ? updatedRoom : room,
+            ),
+          };
+        }),
+
+      reorderMessages: (fromIndex, toIndex) =>
+        set((state) => {
+          if (!state.currentRoom) return state;
+          const messages = [...state.currentRoom.messages];
+          const [movedMessage] = messages.splice(fromIndex, 1);
+          messages.splice(toIndex, 0, movedMessage);
+
+          const updatedRoom = {
+            ...state.currentRoom,
+            messages,
+            updatedAt: new Date(),
+          };
+
           return {
             currentRoom: updatedRoom,
             rooms: state.rooms.map((room) =>
