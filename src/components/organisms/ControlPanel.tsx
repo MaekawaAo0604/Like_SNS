@@ -9,6 +9,7 @@ import { DarkModeToggle } from '../molecules/DarkModeToggle';
 import { RoomSelector } from '../molecules/RoomSelector';
 import { MessageSearch } from '../molecules/MessageSearch';
 import { MessageFilter } from '../molecules/MessageFilter';
+import { MessageSort } from '../molecules/MessageSort';
 import { Button } from '../atoms/Button';
 
 interface ControlPanelProps {
@@ -87,6 +88,11 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       {/* メッセージフィルター */}
       <div className="space-y-4 pb-4 border-b border-gray-200 dark:border-gray-700">
         <MessageFilter />
+      </div>
+
+      {/* メッセージソート */}
+      <div className="space-y-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+        <MessageSort />
       </div>
 
       {/* ダークモード設定 */}
