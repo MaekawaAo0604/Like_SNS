@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import type { SnsTheme, DesignOptions, ColorScheme } from '../../types';
+import type { SnsTheme, DesignOptions, ColorScheme, ChatRoom } from '../../types';
 import type { ThemePreset } from '../../constants/themePresets';
 import { ThemeSelector } from '../molecules/ThemeSelector';
 import { ThemePresetSelector } from '../molecules/ThemePresetSelector';
 import { CustomColorSettings } from '../molecules/CustomColorSettings';
 import { DesignControls } from '../molecules/DesignControls';
 import { DarkModeToggle } from '../molecules/DarkModeToggle';
+import { RoomSelector } from '../molecules/RoomSelector';
 import { Button } from '../atoms/Button';
 
 interface ControlPanelProps {
@@ -13,6 +14,8 @@ interface ControlPanelProps {
   designOptions: DesignOptions;
   colors: ColorScheme;
   currentPresetId: string | null;
+  rooms: ChatRoom[];
+  currentRoomId: string | null;
   onThemeChange: (theme: SnsTheme) => void;
   onPresetChange: (preset: ThemePreset) => void;
   onColorChange: (key: keyof ColorScheme, value: string) => void;
@@ -20,6 +23,9 @@ interface ControlPanelProps {
   onToggleTimestamp: (show: boolean) => void;
   onToggleSenderName: (show: boolean) => void;
   onToggleStatus: (show: boolean) => void;
+  onSelectRoom: (roomId: string) => void;
+  onCreateRoom: (roomName: string) => void;
+  onDeleteRoom: (roomId: string) => void;
   onExport: () => void;
   onClear: () => void;
   onExportJSON: () => void;
@@ -33,6 +39,8 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   designOptions,
   colors,
   currentPresetId,
+  rooms,
+  currentRoomId,
   onThemeChange,
   onPresetChange,
   onColorChange,
@@ -40,6 +48,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   onToggleTimestamp,
   onToggleSenderName,
   onToggleStatus,
+  onSelectRoom,
+  onCreateRoom,
+  onDeleteRoom,
   onExport,
   onClear,
   onExportJSON,
@@ -54,6 +65,17 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       <h2 className="text-lg font-bold text-gray-900 dark:text-white">
         設定パネル
       </h2>
+
+      {/* ルーム管理 */}
+      <div className="space-y-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+        <RoomSelector
+          rooms={rooms}
+          currentRoomId={currentRoomId}
+          onSelectRoom={onSelectRoom}
+          onCreateRoom={onCreateRoom}
+          onDeleteRoom={onDeleteRoom}
+        />
+      </div>
 
       {/* ダークモード設定 */}
       <div className="space-y-4 pb-4 border-b border-gray-200 dark:border-gray-700">
