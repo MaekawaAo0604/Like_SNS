@@ -1,6 +1,6 @@
-import React, { useCallback, useRef, useEffect, useMemo } from 'react';
+import React, { useCallback, useRef, useEffect, useMemo, useState } from 'react';
 import type { Message, ChatRoomJSON } from '../../types';
-import { useMessageStore, useThemeStore, useDesignStore, useFilterStore, useSortStore, usePaginationStore } from '../../stores';
+import { useMessageStore, useThemeStore, useDesignStore, useFilterStore, useSortStore, usePaginationStore, useSearchStore } from '../../stores';
 import { useKeyboardShortcuts } from '../../hooks';
 import { filterMessages } from '../../utils/filterMessages';
 import { sortMessages } from '../../utils/sortMessages';
@@ -16,9 +16,11 @@ import { MainTemplate } from '../templates/MainTemplate';
 import { ChatWindow } from '../organisms/ChatWindow';
 import { MessageComposer } from '../organisms/MessageComposer';
 import { ControlPanel } from '../organisms/ControlPanel';
+import { KeyboardShortcutsHelp } from '../molecules/KeyboardShortcutsHelp';
 
 export const MainPage: React.FC = () => {
   const chatWindowRef = useRef<HTMLDivElement>(null);
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
   const {
     currentRoom,
     rooms,
@@ -43,7 +45,8 @@ export const MainPage: React.FC = () => {
 
   const { filterType, dateRange } = useFilterStore();
   const { sortType } = useSortStore();
-  const { currentPage, itemsPerPage } = usePaginationStore();
+  const { currentPage, itemsPerPage, setCurrentPage } = usePaginationStore();
+  const { nextHighlight, prevHighlight } = useSearchStore();
 
   // フィルター・ソート・ページネーション適用済みメッセージ
   const processedMessages = useMemo(() => {
@@ -220,6 +223,55 @@ export const MainPage: React.FC = () => {
       shiftKey: true,
       handler: () => setShowTimestamp(!options.showTimestamp),
     },
+    {
+      key: 'n',
+      ctrlKey: true,
+      shiftKey: true,
+      handler: () => setShowSenderName(!options.showSenderName),
+    },
+    {
+      key: 's',
+      ctrlKey: true,
+      shiftKey: true,
+      handler: () => setShowStatus(!options.showStatus),
+    },
+    {
+      key: '?',
+      ctrlKey: true,
+      handler: () => setShowShortcutsHelp(true),
+    },
+    {
+      key: 'Escape',
+      handler: () => setShowShortcutsHelp(false),
+    },
+    {
+      key: 'ArrowLeft',
+      ctrlKey: true,
+      handler: () => {
+        if (processedMessages.hasPreviousPage) {
+          setCurrentPage(currentPage - 1);
+        }
+      },
+    },
+    {
+      key: 'ArrowRight',
+      ctrlKey: true,
+      handler: () => {
+        if (processedMessages.hasNextPage) {
+          setCurrentPage(currentPage + 1);
+        }
+      },
+    },
+    {
+      key: 'ArrowUp',
+      ctrlKey: true,
+      handler: prevHighlight,
+    },
+    {
+      key: 'ArrowDown',
+      ctrlKey: true,
+      handler: nextHighlight,
+    },
   ]);
 
   const header = (
@@ -285,6 +337,11 @@ export const MainPage: React.FC = () => {
           onImportTheme={handleImportTheme}
         />
       }
-    />
+    >
+      <KeyboardShortcutsHelp
+        isOpen={showShortcutsHelp}
+        onClose={() => setShowShortcutsHelp(false)}
+      />
+    </MainTemplate>
   );
 };

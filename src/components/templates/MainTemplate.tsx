@@ -6,6 +6,7 @@ interface MainTemplateProps {
   chatWindow: React.ReactNode;
   messageComposer: React.ReactNode;
   controlPanel: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 export const MainTemplate: React.FC<MainTemplateProps> = ({
@@ -13,6 +14,7 @@ export const MainTemplate: React.FC<MainTemplateProps> = ({
   chatWindow,
   messageComposer,
   controlPanel,
+  children,
 }) => {
   const { isMobile, isTablet } = useBreakpoint();
   const [showControlPanel, setShowControlPanel] = useState(false);
@@ -60,6 +62,7 @@ export const MainTemplate: React.FC<MainTemplateProps> = ({
           </div>
         </div>
       </div>
+      {children}
     </div>
   );
 };
