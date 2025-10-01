@@ -10,6 +10,27 @@ interface DarkModeState {
   toggleDarkMode: () => void;
 }
 
+// メディアクエリイベントリスナーの参照を保持（クリーンアップ用）
+let mediaQueryListener: (() => void) | null = null;
+
+/**
+ * メディアクエリイベントリスナーをクリーンアップ
+ */
+function cleanupMediaQueryListener() {
+  if (mediaQueryListener) {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    // Safari 13以前の互換性のため、両方のAPIをサポート
+    if (mediaQuery.removeEventListener) {
+      mediaQuery.removeEventListener('change', mediaQueryListener);
+    } else {
+      mediaQuery.removeListener(mediaQueryListener);
+    }
+
+    mediaQueryListener = null;
+  }
+}
+
 /**
  * ダークモードストア
  * システム設定との連携とユーザー設定の永続化を管理
@@ -23,11 +44,34 @@ export const useDarkModeStore = create<DarkModeState>()(
       setPreference: (preference) => {
         set({ preference });
 
+        // 既存のリスナーをクリーンアップ
+        cleanupMediaQueryListener();
+
         // システム設定の場合はmedia queryをチェック
         if (preference === 'system') {
           const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
           set({ isDark });
           updateDocumentClass(isDark);
+
+          // システム設定の変更を監視
+          const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+          mediaQueryListener = () => {
+            const state = get();
+            // system設定のときのみ更新
+            if (state.preference === 'system') {
+              const isDark = mediaQuery.matches;
+              set({ isDark });
+              updateDocumentClass(isDark);
+            }
+          };
+
+          // Safari 13以前の互換性のため、両方のAPIをサポート
+          if (mediaQuery.addEventListener) {
+            mediaQuery.addEventListener('change', mediaQueryListener);
+          } else {
+            mediaQuery.addListener(mediaQueryListener);
+          }
         } else {
           const isDark = preference === 'dark';
           set({ isDark });
@@ -55,22 +99,6 @@ export const useDarkModeStore = create<DarkModeState>()(
         if (state) {
           // 再読み込み時に設定を適用
           state.setPreference(state.preference);
-
-          // システム設定の場合はmedia queryの変更を監視
-          if (state.preference === 'system') {
-            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-            const handleChange = () => {
-              state.setPreference('system');
-            };
-
-            // Safari 13以前の互換性のため、両方のAPIをサポート
-            if (mediaQuery.addEventListener) {
-              mediaQuery.addEventListener('change', handleChange);
-            } else {
-              mediaQuery.addListener(handleChange);
-            }
-          }
         }
       },
     }
