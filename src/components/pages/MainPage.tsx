@@ -1,7 +1,8 @@
-import React, { useCallback, useRef, useEffect } from 'react';
+import React, { useCallback, useRef, useEffect, useMemo } from 'react';
 import type { Message, ChatRoomJSON } from '../../types';
-import { useMessageStore, useThemeStore, useDesignStore } from '../../stores';
+import { useMessageStore, useThemeStore, useDesignStore, useFilterStore } from '../../stores';
 import { useKeyboardShortcuts } from '../../hooks';
+import { filterMessages } from '../../utils/filterMessages';
 import {
   exportChatAsImage,
   exportChatAsJSON,
@@ -37,6 +38,14 @@ export const MainPage: React.FC = () => {
     setShowSenderName,
     setShowStatus,
   } = useDesignStore();
+
+  const { filterType, dateRange } = useFilterStore();
+
+  // フィルター適用済みメッセージ
+  const filteredMessages = useMemo(() => {
+    if (!currentRoom) return [];
+    return filterMessages(currentRoom.messages, filterType, dateRange);
+  }, [currentRoom, filterType, dateRange]);
 
   // 初期化: currentRoomがnullの場合、デフォルトルームを作成
   useEffect(() => {
@@ -214,7 +223,7 @@ export const MainPage: React.FC = () => {
       chatWindow={
         <div ref={chatWindowRef}>
           <ChatWindow
-            messages={currentRoom?.messages || []}
+            messages={filteredMessages}
             showAvatar={options.showAvatar}
             showTimestamp={options.showTimestamp}
             showSenderName={options.showSenderName}
