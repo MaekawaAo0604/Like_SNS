@@ -13,10 +13,11 @@ export const Textarea: React.FC<TextareaProps> = ({
   fullWidth = false,
   className = '',
   id,
+  required,
   ...props
 }) => {
-  const textareaId =
-    id || `textarea-${Math.random().toString(36).substring(2, 11)}`;
+  const generatedId = React.useId();
+  const textareaId = id || generatedId;
 
   return (
     <div className={`${fullWidth ? 'w-full' : ''}`}>
@@ -26,6 +27,7 @@ export const Textarea: React.FC<TextareaProps> = ({
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
         >
           {label}
+          {required && <span className="text-red-500 ml-1" aria-label="必須">*</span>}
         </label>
       )}
       <textarea
@@ -43,6 +45,8 @@ export const Textarea: React.FC<TextareaProps> = ({
         `}
         aria-invalid={error ? 'true' : 'false'}
         aria-describedby={error ? `${textareaId}-error` : undefined}
+        aria-required={required}
+        required={required}
         {...props}
       />
       {error && (

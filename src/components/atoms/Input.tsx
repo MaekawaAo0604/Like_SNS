@@ -12,9 +12,11 @@ export const Input: React.FC<InputProps> = ({
   fullWidth = false,
   className = '',
   id,
+  required,
   ...props
 }) => {
-  const inputId = id || `input-${Math.random().toString(36).substring(2, 11)}`;
+  const generatedId = React.useId();
+  const inputId = id || generatedId;
 
   return (
     <div className={`${fullWidth ? 'w-full' : ''}`}>
@@ -24,6 +26,7 @@ export const Input: React.FC<InputProps> = ({
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
         >
           {label}
+          {required && <span className="text-red-500 ml-1" aria-label="必須">*</span>}
         </label>
       )}
       <input
@@ -40,6 +43,8 @@ export const Input: React.FC<InputProps> = ({
         `}
         aria-invalid={error ? 'true' : 'false'}
         aria-describedby={error ? `${inputId}-error` : undefined}
+        aria-required={required}
+        required={required}
         {...props}
       />
       {error && (
