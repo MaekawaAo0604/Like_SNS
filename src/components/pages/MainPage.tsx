@@ -25,7 +25,7 @@ export const MainPage: React.FC = () => {
     createRoom,
     importRoom,
   } = useMessageStore();
-  const { config, setSnsTheme } = useThemeStore();
+  const { config, currentPresetId, setSnsTheme, applyPreset, updateColor, exportTheme, importTheme } = useThemeStore();
   const {
     options,
     setShowAvatar,
@@ -147,6 +147,26 @@ export const MainPage: React.FC = () => {
     }
   }, [importRoom]);
 
+  const handleExportTheme = useCallback(() => {
+    const themeJSON = exportTheme();
+    const blob = new Blob([themeJSON], { type: 'application/json' });
+    const fileName = `theme-${new Date().toISOString().slice(0, 10)}.json`;
+    downloadBlob(blob, fileName);
+  }, [exportTheme]);
+
+  const handleImportTheme = useCallback(async () => {
+    const file = await selectFile('application/json');
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      importTheme(text);
+      alert('テーマを読み込みました');
+    } catch (error) {
+      alert(`テーマの読み込みに失敗しました: ${error}`);
+    }
+  }, [importTheme]);
+
   // キーボードショートカット設定
   useKeyboardShortcuts([
     {
@@ -207,7 +227,11 @@ export const MainPage: React.FC = () => {
         <ControlPanel
           currentTheme={config.snsTheme}
           designOptions={options}
+          colors={config.colors}
+          currentPresetId={currentPresetId}
           onThemeChange={setSnsTheme}
+          onPresetChange={applyPreset}
+          onColorChange={updateColor}
           onToggleAvatar={setShowAvatar}
           onToggleTimestamp={setShowTimestamp}
           onToggleSenderName={setShowSenderName}
@@ -216,6 +240,8 @@ export const MainPage: React.FC = () => {
           onClear={handleClear}
           onExportJSON={handleExportJSON}
           onImportJSON={handleImportJSON}
+          onExportTheme={handleExportTheme}
+          onImportTheme={handleImportTheme}
         />
       }
     />
