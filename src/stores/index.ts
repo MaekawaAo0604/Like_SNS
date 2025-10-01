@@ -10,5 +10,6 @@ export { useTemplateStore } from './templateStore';
 export { useSearchStore } from './searchStore';
 export { useFilterStore } from './filterStore';
 export { useSortStore } from './sortStore';
+export { usePaginationStore } from './paginationStore';
 export type { FilterType, DateRange } from './filterStore';
 export type { SortType } from './sortStore';
