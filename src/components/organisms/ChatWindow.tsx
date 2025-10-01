@@ -68,6 +68,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         {messages.map((message) => {
           const isHighlighted = highlightedMessageIds.includes(message.id);
           const isCurrentHighlight =
+            currentHighlightIndex >= 0 &&
+            currentHighlightIndex < highlightedMessageIds.length &&
             highlightedMessageIds[currentHighlightIndex] === message.id;
 
           return (
@@ -108,6 +110,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         itemContent={(_index, message) => {
           const isHighlighted = highlightedMessageIds.includes(message.id);
           const isCurrentHighlight =
+            currentHighlightIndex >= 0 &&
+            currentHighlightIndex < highlightedMessageIds.length &&
             highlightedMessageIds[currentHighlightIndex] === message.id;
 
           return (
