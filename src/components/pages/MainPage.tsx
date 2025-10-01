@@ -1,9 +1,10 @@
 import React, { useCallback, useRef, useEffect, useMemo } from 'react';
 import type { Message, ChatRoomJSON } from '../../types';
-import { useMessageStore, useThemeStore, useDesignStore, useFilterStore, useSortStore } from '../../stores';
+import { useMessageStore, useThemeStore, useDesignStore, useFilterStore, useSortStore, usePaginationStore } from '../../stores';
 import { useKeyboardShortcuts } from '../../hooks';
 import { filterMessages } from '../../utils/filterMessages';
 import { sortMessages } from '../../utils/sortMessages';
+import { paginateMessages } from '../../utils/paginateMessages';
 import {
   exportChatAsImage,
   exportChatAsJSON,
@@ -42,13 +43,25 @@ export const MainPage: React.FC = () => {
 
   const { filterType, dateRange } = useFilterStore();
   const { sortType } = useSortStore();
+  const { currentPage, itemsPerPage } = usePaginationStore();
 
-  // フィルター・ソート適用済みメッセージ
-  const filteredAndSortedMessages = useMemo(() => {
-    if (!currentRoom) return [];
+  // フィルター・ソート・ページネーション適用済みメッセージ
+  const processedMessages = useMemo(() => {
+    if (!currentRoom) {
+      return {
+        messages: [],
+        totalPages: 0,
+        currentPage: 1,
+        totalItems: 0,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      };
+    }
+
     const filtered = filterMessages(currentRoom.messages, filterType, dateRange);
-    return sortMessages(filtered, sortType);
-  }, [currentRoom, filterType, dateRange, sortType]);
+    const sorted = sortMessages(filtered, sortType);
+    return paginateMessages(sorted, currentPage, itemsPerPage);
+  }, [currentRoom, filterType, dateRange, sortType, currentPage, itemsPerPage]);
 
   // 初期化: currentRoomがnullの場合、デフォルトルームを作成
   useEffect(() => {
@@ -226,7 +239,7 @@ export const MainPage: React.FC = () => {
       chatWindow={
         <div ref={chatWindowRef}>
           <ChatWindow
-            messages={filteredAndSortedMessages}
+            messages={processedMessages.messages}
             showAvatar={options.showAvatar}
             showTimestamp={options.showTimestamp}
             showSenderName={options.showSenderName}
@@ -236,6 +249,12 @@ export const MainPage: React.FC = () => {
             onEditMessage={handleEditMessage}
             onDeleteMessage={handleDeleteMessage}
             onReorderMessages={reorderMessages}
+            paginationInfo={{
+              totalPages: processedMessages.totalPages,
+              totalItems: processedMessages.totalItems,
+              hasNextPage: processedMessages.hasNextPage,
+              hasPreviousPage: processedMessages.hasPreviousPage,
+            }}
           />
         </div>
       }
