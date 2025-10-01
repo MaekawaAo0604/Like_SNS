@@ -230,7 +230,7 @@ export const MainPage: React.FC = () => {
       handler: () => setShowSenderName(!options.showSenderName),
     },
     {
-      key: 's',
+      key: 'r',
       ctrlKey: true,
       shiftKey: true,
       handler: () => setShowStatus(!options.showStatus),

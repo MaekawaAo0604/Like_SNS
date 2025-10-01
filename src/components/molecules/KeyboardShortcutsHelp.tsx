@@ -28,7 +28,7 @@ export const KeyboardShortcutsHelp: React.FC<KeyboardShortcutsHelpProps> = ({
         { keys: ['Ctrl', 'Shift', 'A'], description: 'アバター表示切替' },
         { keys: ['Ctrl', 'Shift', 'T'], description: 'タイムスタンプ表示切替' },
         { keys: ['Ctrl', 'Shift', 'N'], description: '送信者名表示切替' },
-        { keys: ['Ctrl', 'Shift', 'S'], description: 'ステータス表示切替' },
+        { keys: ['Ctrl', 'Shift', 'R'], description: 'ステータス表示切替' },
       ],
     },
     {
