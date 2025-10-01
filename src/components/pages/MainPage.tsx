@@ -163,7 +163,7 @@ export const MainPage: React.FC = () => {
       importTheme(text);
       alert('テーマを読み込みました');
     } catch (error) {
-      alert(`テーマの読み込みに失敗しました: ${error}`);
+      alert(`テーマの読み込みに失敗しました: ${error instanceof Error ? error.message : error}`);
     }
   }, [importTheme]);
 
