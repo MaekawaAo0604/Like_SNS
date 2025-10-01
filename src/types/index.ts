@@ -25,3 +25,5 @@ export type {
   ExportOptions,
   ExportResult,
 } from './export';
+
+export type { MessageTemplate, MessageTemplateJSON } from './template';

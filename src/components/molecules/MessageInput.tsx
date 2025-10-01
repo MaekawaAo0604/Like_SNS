@@ -6,19 +6,37 @@ interface MessageInputProps {
   onSend: (content: string) => void;
   placeholder?: string;
   disabled?: boolean;
+  value?: string;
+  onChange?: (value: string) => void;
 }
 
 export const MessageInput: React.FC<MessageInputProps> = ({
   onSend,
   placeholder = 'メッセージを入力...',
   disabled = false,
+  value: externalValue,
+  onChange: externalOnChange,
 }) => {
-  const [content, setContent] = useState('');
+  const [internalValue, setInternalValue] = useState('');
+
+  // 制御コンポーネントか非制御コンポーネントかを判定
+  const isControlled = externalValue !== undefined;
+  const content = isControlled ? externalValue : internalValue;
+
+  const handleChange = (newValue: string) => {
+    if (isControlled && externalOnChange) {
+      externalOnChange(newValue);
+    } else {
+      setInternalValue(newValue);
+    }
+  };
 
   const handleSend = () => {
     if (content.trim()) {
       onSend(content.trim());
-      setContent('');
+      if (!isControlled) {
+        setInternalValue('');
+      }
     }
   };
 
@@ -33,7 +51,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
     <div className="flex gap-2 items-end">
       <Textarea
         value={content}
-        onChange={(e) => setContent(e.target.value)}
+        onChange={(e) => handleChange(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         disabled={disabled}
