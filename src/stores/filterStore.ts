@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 export type FilterType = 'all' | 'sent' | 'received' | 'date';
 
-interface DateRange {
+export interface DateRange {
   start: Date | null;
   end: Date | null;
 }

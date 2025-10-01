@@ -1,10 +1,5 @@
 import type { Message } from '../types';
-import type { FilterType } from '../stores';
-
-interface DateRange {
-  start: Date | null;
-  end: Date | null;
-}
+import type { FilterType, DateRange } from '../stores';
 
 export const filterMessages = (
   messages: Message[],
