@@ -18,11 +18,14 @@ export const MainPage: React.FC = () => {
   const chatWindowRef = useRef<HTMLDivElement>(null);
   const {
     currentRoom,
+    rooms,
     addMessage,
     updateMessage,
     deleteMessage,
     clearMessages,
     createRoom,
+    loadRoom,
+    deleteRoom,
     importRoom,
   } = useMessageStore();
   const { config, currentPresetId, setSnsTheme, applyPreset, updateColor, exportTheme, importTheme } = useThemeStore();
@@ -229,6 +232,8 @@ export const MainPage: React.FC = () => {
           designOptions={options}
           colors={config.colors}
           currentPresetId={currentPresetId}
+          rooms={rooms}
+          currentRoomId={currentRoom?.id || null}
           onThemeChange={setSnsTheme}
           onPresetChange={applyPreset}
           onColorChange={updateColor}
@@ -236,6 +241,9 @@ export const MainPage: React.FC = () => {
           onToggleTimestamp={setShowTimestamp}
           onToggleSenderName={setShowSenderName}
           onToggleStatus={setShowStatus}
+          onSelectRoom={loadRoom}
+          onCreateRoom={createRoom}
+          onDeleteRoom={deleteRoom}
           onExport={handleExport}
           onClear={handleClear}
           onExportJSON={handleExportJSON}
