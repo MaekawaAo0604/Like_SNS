@@ -5,6 +5,7 @@ import { ThemeSelector } from '../molecules/ThemeSelector';
 import { ThemePresetSelector } from '../molecules/ThemePresetSelector';
 import { CustomColorSettings } from '../molecules/CustomColorSettings';
 import { DesignControls } from '../molecules/DesignControls';
+import { DarkModeToggle } from '../molecules/DarkModeToggle';
 import { Button } from '../atoms/Button';
 
 interface ControlPanelProps {
@@ -53,6 +54,11 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       <h2 className="text-lg font-bold text-gray-900 dark:text-white">
         設定パネル
       </h2>
+
+      {/* ダークモード設定 */}
+      <div className="space-y-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+        <DarkModeToggle />
+      </div>
 
       {/* テーマプリセット */}
       <div className="space-y-4">
