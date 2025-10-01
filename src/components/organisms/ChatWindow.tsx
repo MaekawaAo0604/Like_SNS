@@ -42,7 +42,12 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   // メッセージが少ない場合は通常のレンダリング
   if (messages.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center p-4 bg-white dark:bg-gray-900 min-h-[400px] max-h-[600px]">
+      <div
+        className="flex-1 flex items-center justify-center p-4 bg-white dark:bg-gray-900 min-h-[400px] max-h-[600px]"
+        role="log"
+        aria-live="polite"
+        aria-label="チャットメッセージ"
+      >
         <p className="text-gray-400">メッセージがありません</p>
       </div>
     );
@@ -51,7 +56,13 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   // メッセージが100件未満の場合は通常レンダリング
   if (messages.length < 100) {
     return (
-      <div className="flex-1 overflow-y-auto p-4 bg-white dark:bg-gray-900 min-h-[400px] max-h-[600px]">
+      <div
+        className="flex-1 overflow-y-auto p-4 bg-white dark:bg-gray-900 min-h-[400px] max-h-[600px]"
+        role="log"
+        aria-live="polite"
+        aria-label="チャットメッセージ"
+        aria-atomic="false"
+      >
         {messages.map((message) => (
           <MessageBubble
             key={message.id}
@@ -73,7 +84,13 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
   // 100件以上の場合は仮想スクロール
   return (
-    <div className="flex-1 bg-white dark:bg-gray-900 min-h-[400px] max-h-[600px]">
+    <div
+      className="flex-1 bg-white dark:bg-gray-900 min-h-[400px] max-h-[600px]"
+      role="log"
+      aria-live="polite"
+      aria-label="チャットメッセージ"
+      aria-atomic="false"
+    >
       <Virtuoso
         ref={virtuosoRef}
         style={{ height: '600px' }}
